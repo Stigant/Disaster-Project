@@ -10,7 +10,7 @@ def load_data(messages_filepath, categories_filepath):
     #Dummy outcomes
     labels=[x.strip('-[01]')  for x in ser_categories.iloc[0,0].split(';')]
     category_dummies=ser_categories.categories.apply(
-            lambda x: [y[-1] for y in x.split(';')]).apply(pd.Series)
+            lambda x: [y[-1] for y in x.split(';')]).apply(pd.Series).astype(int)
     category_dummies.columns=labels
 
     #Dummy genres
