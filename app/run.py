@@ -4,9 +4,14 @@ import joblib
 import pandas as pd
 import re
 
-
-from nltk.stem import WordNetLemmatizer
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 from flask import Flask
 from flask import render_template, request, jsonify
@@ -18,8 +23,6 @@ from importlib import import_module
 import sys
 
 sys.path.append("../models")
-
-
 
 app = Flask(__name__)
 
@@ -61,13 +64,13 @@ model = joblib.load("../models/classifier.pkl")
 @app.route('/')
 @app.route('/templates/master.html')
 def index():
-
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = keep_genres(df)
-    genre_counts['genre_other']=~(df.any(axis=1))
-    genre_counts=genre_counts.sum().transpose()
-    genre_names = list(genre_counts.index)
+    genres = keep_genres(df)
+    genres.loc[:,'genre_other']=~(genres.any(axis=1))
+
+    genre_counts=genres.sum().transpose().copy()
+    genre_names = [x.split('_')[1] for x in genre_counts.index]
 
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -104,16 +107,20 @@ def index():
 @app.route('/go')
 def go():
     # save user input in query
-    query = request.args.get('query', '')
+    cols=['message', 'genre_social', 'genre_news']
+
+    message = request.args.get('query', '')
+    input=pd.DataFrame([[message, 1, 0]], columns=cols)
 
     # use model to predict classification for query
-    classification_labels = model.predict([query])[0]
-    classification_results = dict(zip(df.columns[4:], classification_labels))
+    prediction=model.predict(input)
+    classification_labels = prediction.values[0]
+    classification_results = dict(zip(prediction.columns, classification_labels))
 
     # This will render the go.html Please see that file.
     return render_template(
         'go.html',
-        query=query,
+        query=message,
         classification_result=classification_results
     )
 
