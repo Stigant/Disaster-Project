@@ -2,6 +2,7 @@ import json
 import plotly
 import joblib
 import pandas as pd
+import numpy as np
 import re
 
 import nltk
@@ -26,6 +27,12 @@ sys.path.append("../models")
 
 app = Flask(__name__)
 
+
+
+
+
+
+#Redefine misc functions
 def load_data(database_filepath):
     """Load pandas dataframe from SQL database"""
     engine = create_engine('sqlite:///'+database_filepath)
@@ -45,18 +52,18 @@ def tokenize(text):
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stopWords]
     return tokens
 
-
-df = load_data("../data/Disaster-Messages-Categories.db")
-
-# load model
 def keep_message(X):
     return  X['message']
 def keep_genres(X):
     return X[['genre_social', 'genre_news']]
 def thresh_fun(z):
     return max(min(0.5,2*z.mean()), 0.25)
+def no_entries_in(X):
+    return np.diff(X[:,:-2].indptr) == 0
 
 
+#Load data+model
+df = load_data("../data/Disaster-Messages-Categories.db")
 model = joblib.load("../models/classifier.pkl")
 
 

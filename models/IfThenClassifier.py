@@ -4,11 +4,15 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 
 class IfThenClassifier(BaseEstimator, ClassifierMixin):
     """Class to predict against one binary variable,
-        then predict again if first prediction==1"""
-    def __init__(self, transformer, clf1, clf2):
+        then predict again (against new variables(s)) if first prediction==1.
+        If repredict=True then inputs which are not assigned a
+        class in the second are reclassified as not in the primary class.
+        """
+    def __init__(self, transformer, clf1, clf2, repredict=False):
         self.transformer=transformer
         self.clf1=clf1
         self.clf2=clf2
+        self.rep=repredict
         self.columns=None
 
     def fit(self, X, y):
@@ -40,12 +44,16 @@ class IfThenClassifier(BaseEstimator, ClassifierMixin):
         #Predict y1
         X_transformed=self.transformer.transform(X)
         y1_pred=self.clf1.predict(X_transformed)
+        y1_pred.index=y_pred.index
         y_pred.iloc[:,0]=y1_pred
         keepers = (y_pred.iloc[:,0]==1)
 
         #If y1 predict y2
-        X_true_tranformed=self.transformer.transform(X[keepers])
-        y2_pred=self.clf2.predict(X_true_tranformed)
-        y2_pred.index=X[keepers].index
-        y_pred.loc[keepers,y_pred.columns[1:]]=y2_pred
+        if keepers.any():
+            X_true_tranformed=self.transformer.transform(X[keepers])
+            y2_pred=self.clf2.predict(X_true_tranformed)
+            y2_pred.index=X[keepers].index
+            y_pred.loc[keepers,y_pred.columns[1:]]=y2_pred
+            if self.rep:
+                y_pred.loc[keepers,'related']=y2_pred.any(axis=1)
         return y_pred

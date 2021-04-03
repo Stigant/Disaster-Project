@@ -3,6 +3,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 import re
 import nltk
+import numpy as np
+
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -14,12 +16,18 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.preprocessing import FunctionTransformer
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbalancedPipeline
-import dill
+from joblib import dump
+
+#Set Dir
+import os
+os.chdir("..")
+print(f"Current Dir: {os.getcwd()}")
 
 #Custom Classes
 from OneByOneClassifier import OneByOneClassifier
 from ThresholdClassifier import ThresholdClassifier
 from IfThenClassifier import IfThenClassifier
+from DefaultClassifier import DefaultClassifier
 
 def load_data(database_filepath):
     """Load pandas dataframe from SQL database"""
@@ -40,25 +48,37 @@ def tokenize(text):
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stopWords]
     return tokens
 
+def keep_message(X):
+    return  X['message']
+def keep_genres(X):
+    return X[['genre_social', 'genre_news']]
+
 def model_features():
     """Fit transformer to extract features on df"""
     features=FeatureUnion([
                 ('text_pipeline', Pipeline([
-                    ('keep_message', FunctionTransformer(lambda X: X.message)),
+                    ('keep_message', FunctionTransformer(keep_message)),
                     ('vect', CountVectorizer(tokenizer=tokenize)),
                     ('tfidf', TfidfTransformer())
                     ])),
-                ('keep_others', FunctionTransformer(lambda X: X[['genre_social', 'genre_news']]))])
+                ('keep_others', FunctionTransformer(keep_genres))
+                ])
     return features
+def no_entries_in(X):
+    return np.diff(X[:,:-2].indptr) == 0
 
 def related_model():
-    """SGDC classifier to predict if related"""
+    """SGDC classifier to predict if related, defaults to not related if
+    no words in the message are recognised"""
     SGDC=SGDClassifier(n_jobs=-1)
-    return SGDC
+    model=SGDC=DefaultClassifier(SGDC, {0:no_entries_in})
+    return model
+
+def thresh_fun(z):
+    return max(min(0.5,2*z.mean()), 0.25)
 
 def cat_model():
     """LogisticRegression model to predict message categories"""
-    thresh_fun= lambda z: max(min(0.5,2*z.mean()), 0.25)
     clf=ThresholdClassifier(LogisticRegression(solver='newton-cg'), thresh_fun)
 
     sample_pipeline = ImbalancedPipeline([
@@ -76,7 +96,7 @@ def build_model():
     clf=cat_model()
 
     #Build Model
-    model = IfThenClassifier(features, SGDC, clf)
+    model = IfThenClassifier(features, SGDC, clf, repredict=True)
     return model
 
 def evaluate_model(model, X_test, Y_test):
@@ -91,7 +111,7 @@ def evaluate_model(model, X_test, Y_test):
 
 def save_model(model, model_filepath):
     with open(model_filepath, 'wb') as file:
-        dill.dump(model, file)
+        dump(model, file)
     return
 
 
@@ -100,9 +120,9 @@ def main():
         database_filepath, model_filepath, eval = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         if database_filepath.lower()== 'default':
-            database_filepath="../data/Disaster-Messages-Categories.db"
+            database_filepath="data/Disaster-Messages-Categories.db"
         if model_filepath.lower()== 'default':
-            model_filepath="classifier.pkl"
+            model_filepath="models/classifier.pkl"
 
         df= load_data(database_filepath)
         X=df[['message', 'genre_social', 'genre_news']].copy()
