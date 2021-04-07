@@ -19,8 +19,6 @@ from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 from sqlalchemy import create_engine
 
-from importlib import import_module
-
 import sys
 
 sys.path.append("../models")
