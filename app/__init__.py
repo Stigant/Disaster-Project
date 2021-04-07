@@ -22,7 +22,7 @@ sys.path.append("models")
 app = Flask(__name__)
 
 #Load data+model
-from misc import load_data
+from misc import load_data, keep_genres
 
 df = load_data("data/Disaster-Messages-Categories.db")
 model = joblib.load("models/classifier.pkl")
