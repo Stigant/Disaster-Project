@@ -1,7 +1,7 @@
 # Disaster Response Pipeline Project
 
 This app classifies messages according to their relation to disaster relief. The model was trained on data from Figure Eight (now a part of [Appen](https://appen.com/)). 
-A working copy can be found [here](https://dashboard.heroku.com/apps/stigant-disaster-app).
+A working copy can be found [here](https://stigant-disaster-app.herokuapp.com/).
 
 The layout is fairly self-explanatatory. 
 The data file contains the data plus the data cleaning code and the database it outputs.
