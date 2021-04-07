@@ -75,15 +75,20 @@
     {% endblock %}
 
     {% for id in ids %}
-        <div id="{{id}}"> </div>
+        <div id="{{id}}"></div>
     {% endfor %}
-</div>
 
+    <br>
+    <br>
+
+
+</div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript">
     const graphs = {{graphJSON | safe}};
     const ids = {{ids | safe}};
     for(let i in graphs) {
-        Plotly.plot(ids[i], graphs[i].data, graphs[i].layout);
+        Plotly.react(ids[i], graphs[i].data, graphs[i].layout);
     }
 </script>
 

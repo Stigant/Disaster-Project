@@ -72,12 +72,23 @@ model = joblib.load("../models/classifier.pkl")
 @app.route('/templates/master.html')
 def index():
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
+    #Graph 1
     genres = keep_genres(df)
     genres.loc[:,'genre_other']=~(genres.any(axis=1))
 
     genre_counts=genres.sum().transpose().copy()
     genre_names = [x.split('_')[1] for x in genre_counts.index]
+    genre_counts=genre_counts.tolist()
+
+    related_counts= list(df.pivot_table(columns=['genre_social','genre_news'],
+                    values='related', aggfunc='sum').values[0][::-1])
+
+
+    #Graph 2
+
+    cat_counts=df.iloc[:,4:].sum().sort_values(ascending=False)
+    cats=list(cat_counts.index)
+    cat_counts=cat_counts.values
 
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -86,7 +97,13 @@ def index():
             'data': [
                 Bar(
                     x=genre_names,
-                    y=genre_counts
+                    y=genre_counts,
+                    name='Recieved Messages'
+                ),
+                Bar(
+                x=genre_names,
+                y=related_counts,
+                name='Relevant Messages'
                 )
             ],
 
@@ -99,6 +116,42 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+
+        {
+            'data': [
+                Bar(
+                    x=cats,
+                    y=cat_counts,
+                    name='Categories')
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Types',
+                'margin': {
+                    'l': 50,
+                    'r': 50,
+                    'b': 100,
+                    't': 100,
+                    'pad': 4
+                },
+
+                'yaxis': {
+                    'title': {
+                        'text': "Count",
+                        'standoff': 0
+                        }
+                },
+
+
+                'xaxis': {
+                    'title': {
+                        'text': "Message Category",
+                        'standoff': 100
+                        },
+                    'tickangle': 30
+                }
+            }
         }
     ]
 
@@ -107,7 +160,7 @@ def index():
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
     # render web page with plotly graphs
-    return render_template('master.html', ids=ids, graphJSON=graphJSON)
+    return render_template('master.html', ids=ids, graphJSON=graphJSON, genre_data=(genre_names, genre_counts))
 
 
 # web page that handles user query and displays model results
