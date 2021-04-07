@@ -18,40 +18,13 @@ from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbalancedPipeline
 from joblib import dump
 
-#Set Dir
-import os
-os.chdir("..")
-print(f"Current Dir: {os.getcwd()}")
-
 #Custom Classes
 from OneByOneClassifier import OneByOneClassifier
 from ThresholdClassifier import ThresholdClassifier
 from IfThenClassifier import IfThenClassifier
 from DefaultClassifier import DefaultClassifier
 
-def load_data(database_filepath):
-    """Load pandas dataframe from SQL database"""
-    engine = create_engine('sqlite:///'+database_filepath)
-    df=pd.read_sql_table('DisasterTable',engine).set_index('id')
-    return df
-
-def tokenize(text):
-    """Clean and tokenize text, then lemmatize"""
-    #Clean+Tokenize
-    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
-    text.lower()
-    tokens=word_tokenize(text)
-
-    #Lemmatize
-    stopWords=stopwords.words('english')
-    lemmatizer = WordNetLemmatizer()
-    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stopWords]
-    return tokens
-
-def keep_message(X):
-    return  X['message']
-def keep_genres(X):
-    return X[['genre_social', 'genre_news']]
+from misc import load_data, tokenize, keep_message, keep_genres, thresh_fun, no_entries_in
 
 def model_features():
     """Fit transformer to extract features on df"""
@@ -64,8 +37,6 @@ def model_features():
                 ('keep_others', FunctionTransformer(keep_genres))
                 ])
     return features
-def no_entries_in(X):
-    return np.diff(X[:,:-2].indptr) == 0
 
 def related_model():
     """SGDC classifier to predict if related, defaults to not related if
@@ -73,9 +44,6 @@ def related_model():
     SGDC=SGDClassifier(n_jobs=-1)
     model=SGDC=DefaultClassifier(SGDC, {0:no_entries_in})
     return model
-
-def thresh_fun(z):
-    return max(min(0.5,2*z.mean()), 0.25)
 
 def cat_model():
     """LogisticRegression model to predict message categories"""
