@@ -21,7 +21,7 @@ from sqlalchemy import create_engine
 
 import sys
 
-sys.path.append("../models")
+sys.path.append("models")
 
 app = Flask(__name__)
 
@@ -61,8 +61,8 @@ def no_entries_in(X):
 
 
 #Load data+model
-df = load_data("../data/Disaster-Messages-Categories.db")
-model = joblib.load("../models/classifier.pkl")
+df = load_data("data/Disaster-Messages-Categories.db")
+model = joblib.load("models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
