@@ -134,9 +134,8 @@ def go():
     input=pd.DataFrame([[message, 1, 0]], columns=cols)
 
     # use model to predict classification for query
-    prediction=model.predict(input)
-    classification_labels = prediction.values[0]
-    classification_results = dict(zip(prediction.columns, classification_labels))
+    prediction=model.predict(input).transpose()[0].sort_values(ascending=False)
+    classification_results = prediction.to_dict()
 
     # This will render the go.html Please see that file.
     return render_template(
