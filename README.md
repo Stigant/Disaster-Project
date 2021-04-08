@@ -23,10 +23,12 @@ The model therefore breaks into the following parts:
 
 Here step 2 has both good recall and good precision. Step 3 is primarily tuned for recall and has relatively poor precision on some categories - essentially those for which there was little data. This imbalance was addressed somewhat by using SMOTE to resample data before training.
 
-Step 1 was done with nltk
-Step 2 was done with an SGDC classifier.
-Step 3 was done using a Logistic Regression with a custom threshold - implemented in ThresholdClassifier
-Step 4 was done as part of the IfThenClassifier wrapper used to combine steps 1 and 2. This step can be turned off by setting reprodict=False.
+Step 1 was done with nltk. </br>
+Step 2 was done with an SGDC classifier.</br>
+Step 3 was done using a Logistic Regression with a custom threshold - implemented in ThresholdClassifier. OneByOneClassifier was used to allow for mulitoutput regression with ThresholdClassifier. </br>
+Step 4 was done as part of the IfThenClassifier wrapper used to combine steps 1 and 2.
+
+A DefaultClassifier class is also implemented. This allows default classifications to be assigned according to a dictionary of (Boolean) functions. In this case it was used to default empty/totally unseen messages to unrelated (these were previously predicted as related). This may not be needed when step 4 is used, but was kept anyway so that step 4 can be easily ommitted - set repredict=False in train_classifier.build_model to do so.
 
 ## Training Data
 
@@ -38,6 +40,7 @@ This project uses Python 3.
 A full list of dependencies can be found in requirements.txt.
 The main packages used for the model and data loading are 
 * numpy
+* pandas
 * sklearn
 * nltk
  
