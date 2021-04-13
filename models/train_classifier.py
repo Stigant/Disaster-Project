@@ -18,6 +18,11 @@ from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbalancedPipeline
 from joblib import dump
 
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
+
 #Custom Classes
 from OneByOneClassifier import OneByOneClassifier
 from sklearn.multioutput import MultiOutputClassifier
