@@ -27,11 +27,20 @@ def tokenize(text):
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stopWords]
     return tokens
 
+class const(object):
+    def __init__(self, a):
+        self.a = a
+    def __call__(self, b):
+        return self.a
 def keep_message(X):
+    """Keep only message column"""
     return  X['message']
 def keep_genres(X):
+    """Keep genre columns"""
     return X[['genre_social', 'genre_news']]
 def thresh_fun(z):
-    return max(min(0.5,2*z.mean()), 0.25)
+    """Calculate custom threshold as 2*mean"""
+    return 2*z.mean()
 def no_entries_in(X):
+    """See if sparse array has entries in columns 0:-2"""
     return np.diff(X[:,:-2].indptr) == 0

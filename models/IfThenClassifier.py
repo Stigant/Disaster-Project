@@ -51,9 +51,10 @@ class IfThenClassifier(BaseEstimator, ClassifierMixin):
         #If y1 predict y2
         if keepers.any():
             X_true_tranformed=self.transformer.transform(X[keepers])
-            y2_pred=self.clf2.predict(X_true_tranformed)
+            y2_pred=pd.DataFrame(self.clf2.predict(X_true_tranformed))
             y2_pred.index=X[keepers].index
-            y_pred.loc[keepers,y_pred.columns[1:]]=y2_pred
+            y2_pred.columns=y_pred.columns[1:]
+            y_pred.loc[keepers,y2_pred.columns]=y2_pred
             if self.rep:
-                y_pred.loc[keepers,'related']=y2_pred.any(axis=1)
+                y_pred.loc[keepers,'related']=y2_pred.any(axis=1).astype(int)
         return y_pred

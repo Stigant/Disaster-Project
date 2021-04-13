@@ -9,10 +9,11 @@ class ThresholdClassifier(BaseEstimator,ClassifierMixin):
         self.classifier=classifier
         self.threshold_fun=threshold_fun
         self.threshold=0.5
+        self.classes_=[0,1]
 
     def fit(self, X, y):
         #Fit Threshold
-        threshold=self.threshold_fun(y)
+        self.threshold=self.threshold_fun(y)
         #Fit classifer
         self.classifier.fit(X,y)
 
@@ -26,5 +27,5 @@ class ThresholdClassifier(BaseEstimator,ClassifierMixin):
 
         #Compare to threshold
         t=self.threshold
-        y_pred = (predictions > 0.5).astype(int)
+        y_pred = (predictions > t).astype(int)
         return y_pred
