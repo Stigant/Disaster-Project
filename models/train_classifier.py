@@ -57,7 +57,7 @@ fb_scorer = make_scorer(fbeta_score, beta=3/2)
 
 def cat_model():
     """LogisticRegression model to predict message categories"""
-    clf=ThresholdClassifier(LogisticRegression(max_iter=1000, solver='liblinear'), const(0.25))
+    clf=ThresholdClassifier(LogisticRegression(max_iter=5000, solver='liblinear'), const(0.25))
 
     sample_pipeline = ImbalancedPipeline([
         ('resample', SMOTE()),
