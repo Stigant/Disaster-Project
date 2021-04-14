@@ -17,6 +17,7 @@ def load_data(database_filepath):
     return df
 
 def get_wordnet_pos(tag):
+    """ Pos tag to Wordnet tag """
     tag=tag[0].upper()
     if tag == 'J':
         return wordnet.ADJ
@@ -54,12 +55,14 @@ marker_pattern= '('+'|'.join(currency_markers)+')'
 curr_pattern=r""+ marker_pattern+"\s*(\d+[\s|\.|,]*)+"
 
 def reduce_if(char, count):
+    """Reduce duplicate letters to only two"""
     if char.isalpha():
         return char*min(2,count)
     else:
         return char*count
 
 def parse_currency(curr):
+    """Parse currency strings, returns currency code, code+#digits and $ marker"""
     symb=curr[0]
     try:
         code=symbols['\\'+symb]
@@ -71,6 +74,7 @@ def parse_currency(curr):
     return [code, code+digits, '$']
 
 def parse_phone_number(num, loc=None):
+    """Parse potential phone number, returns national number if valid for given location"""
     try:
         dat = pn.parse(num, loc)
         if pn.is_valid_number(dat):
@@ -79,12 +83,14 @@ def parse_phone_number(num, loc=None):
         return None
 
 def extract_url_data(url):
+    """Extract hostname and path from url if possible"""
     dat=urlparse(url)
     if dat.hostname:
         return [x for x in [dat.hostname.strip('www.'), dat.path.strip('/')] if x]
     else:
         dat=urlparse('//'+url)
         return [x for x in [dat.hostname.strip('www.'), dat.path.strip('/')] if x]
+    return []
 
 def tokenize(text):
     """Clean and tokenize text, then lemmatize"""
@@ -143,6 +149,7 @@ def tokenize(text):
     #return word_tokens
 
 class const(object):
+    """Class for constant functions"""
     def __init__(self, a):
         self.a = a
     def __call__(self, b):
