@@ -3,6 +3,9 @@
 This app classifies messages according to their relation to disaster relief. The model was trained on data from Figure Eight (now a part of [Appen](https://appen.com/)). 
 A working copy can be found [here](https://stigant-disaster-app.herokuapp.com/).
 
+The aim is to be able to determine which categories a given tweet, news report etc. fit into so that they can be passsed to relevant authorities and organisations. The categories themselves are things like 'Weather', 'Aid-related, 'Medical Help' and are specified in the training data, making this a multi-output, supervised classification task.
+There is also a 'related' category in the training data, and messages in the training data are said to be related if and only if they are part of at least one other category. This restriction is also implemented in the model.
+
 The layout is fairly self-explanatatory. 
 The data file contains the data plus the data cleaning code and the database it outputs.
 Models contains the model script, the custom classes and the pickled model.
@@ -10,9 +13,7 @@ App contains the flask app. It can be run locally by running (python) app/__init
 
 ## Model:
 
-The aim of the model is to determine which if any disaster related categories it is falls into. Messages may be a part of any category, and they are said to be related if and only if they are part of at least one category.
-
-For a problem of this kind, it is much more important that messages are flagged up than some extra are incorreclty identified as important, so it is natural to try and improve recall at the expense of precision. On the other hand, a model which is too imprecise is functionally useless. By splitting the task into two we are afforded more control over this tradeoff.
+For a problem of this kind, it is much more important that relevant messages are flagged up than some extra are incorreclty identified as important, so it is natural to try and improve recall at the expense of precision. On the other hand, a model which is too imprecise is functionally useless. By splitting the task into two we are afforded more control over this tradeoff.
 
 The model therefore breaks into the following parts:
 
