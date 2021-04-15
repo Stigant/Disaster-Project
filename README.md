@@ -9,7 +9,7 @@ There is also a 'related' category in the training data, and messages in the tra
 The layout is fairly self-explanatatory. 
 The data file contains the data plus the data cleaning code and the database it outputs.
 Models contains the model script, the custom classes and the pickled model.
-App contains the flask app. It can be run locally by running (python) app/__init__.py from the main repository directory. It will say the app can be found at http://0.0.0.0:3001/ but you may need to use localhost:3001.
+App contains the flask app. It can be run locally by running (python) app/run.py from the main repository directory. It will say the app can be found at http://0.0.0.0:3001/ but you may need to use localhost:3001.
 
 ## Model:
 
