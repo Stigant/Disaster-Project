@@ -73,6 +73,7 @@ def cat_model():
     return OneByOneClassifier(grid)
 
 def build_model():
+    """Build model from model_features, related_model and cat_model"""
     #Build Parts
     features=model_features()
     SGDC=related_model()
@@ -83,6 +84,7 @@ def build_model():
     return model
 
 def evaluate_model(model, X_test, Y_test, partial=False):
+    """Print classification report or summary for model on test data"""
     #Predict
     Y_preds=model.predict(X_test)
 
@@ -96,14 +98,21 @@ def evaluate_model(model, X_test, Y_test, partial=False):
 
 
 def save_model(model, model_filepath):
+    """Save model to model_filepath"""
     with open(model_filepath, 'wb') as file:
         dump(model, file)
     return
 
 
 def main():
-    if len(sys.argv) == 4:
-        database_filepath, model_filepath, eval = sys.argv[1:]
+    if len(sys.argv) ==2 and sys.argv[1].lower()=='default':
+        input = ('data/Disaster-Messages-Categories.db', 'models/classifier.pkl',
+        'True')
+    else:
+        input= sys.argv[1:]
+
+    if len(input) == 3:
+        database_filepath, model_filepath, eval = input
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         if database_filepath.lower()== 'default':
             database_filepath="data/Disaster-Messages-Categories.db"

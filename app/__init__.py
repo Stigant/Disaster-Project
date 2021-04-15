@@ -32,6 +32,7 @@ model = joblib.load("models/classifier.pkl")
 @app.route('/')
 @app.route('/templates/master.html')
 def index():
+    """Produce graph data for genres/categories plots"""
     # extract data needed for visuals
     #Graph 1
     genres = keep_genres(df)
@@ -127,6 +128,7 @@ def index():
 # web page that handles user query and displays model results
 @app.route('/go')
 def go():
+    """Make model prediction and return results"""
     # save user input in query
     cols=['message', 'genre_social', 'genre_news']
 

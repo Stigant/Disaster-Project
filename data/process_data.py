@@ -4,6 +4,7 @@ import numpy as np
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    """Loads and merges data from message and category datasets"""
     df_messages=pd.read_csv(messages_filepath)
     ser_categories=pd.read_csv(categories_filepath).set_index('id')
 
@@ -21,7 +22,7 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
-
+    """Cleans data - deals with dupes, NaN's and non-binary entries"""
     #Deal with duplicate IDs
     dupes=df[df.index.duplicated(keep=False)]
     union=dupes.groupby(level=0).max()
@@ -36,30 +37,30 @@ def clean_data(df):
     df.dropna(how='any', inplace=True)
     df=df=df[df.message != "#NAME?"].copy()
 
-    #Rescale dummy_catogory booleans
-    def rescale(x):
-        if isinstance(x,int):
-            if x == 0:
-                return x
-            else:
-                return 1
-        else:
-            return x
-    df.iloc[:,3:]=df.iloc[:,3:].applymap(rescale)
+    #Rescale dummy_category entries to 0/1
+    df.iloc[:,3:]=df.iloc[:,3:].astype(int).astype(bool)
 
     return df
 
 
 def save_data(df, database_filepath, tablename):
+    """Saves to SQL database"""
     engine = create_engine('sqlite:///'+database_filepath)
     df.to_sql(tablename, engine, index=False, if_exists='replace')
     pass
 
 
 def main():
-    if len(sys.argv) == 5:
 
-        messages_filepath, categories_filepath, database_filepath, tablename = sys.argv[1:]
+    if len(sys.argv) ==2 and sys.argv[1].lower()=='default':
+        input = ('data/disaster_messages.csv',
+        'data/disaster_categories.csv','data/Disaster-Messages-Categories.db',
+        'DisasterTable')
+    else:
+        input= sys.argv[1:]
+
+    if len(input) == 4:
+        messages_filepath, categories_filepath, database_filepath, tablename = input
 
         print('Loading data...\n    MESSAGES: {}\n    CATEGORIES: {}'
               .format(messages_filepath, categories_filepath))
